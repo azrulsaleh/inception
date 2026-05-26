@@ -1,0 +1,39 @@
+services:
+  mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ../secrets/db_password.txt:/run/secrets/db_password:ro
+      - ../secrets/db_root_password.txt:/run/secrets/db_root_password:ro
+
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../secrets/db_password.txt:/run/secrets/db_password:ro
+      - ../secrets/credentials.txt:/run/secrets/credentials:ro
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    restart: always
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress_data:/var/www/html
+
+volumes:
+  mariadb_data:
+  wordpress_data:
