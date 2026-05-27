@@ -15,10 +15,10 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     mv wp-cli.phar /usr/local/bin/wp
 
 RUN mkdir -p /usr/src/wordpress && \
-    curl -O https://wordpress.org/latest.tar.gz && \
-    tar -xzf latest.tar.gz && \
+    curl -O https://wordpress.org/wordpress-6.7.2.tar.gz && \
+    tar -xzf wordpress-6.7.2.tar.gz && \
     cp -a wordpress/. /usr/src/wordpress/ && \
-    rm -rf wordpress latest.tar.gz
+    rm -rf wordpress wordpress-6.7.2.tar.gz
 
 COPY tools/setup.sh /setup.sh
 RUN chmod +x /setup.sh
