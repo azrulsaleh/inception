@@ -24,7 +24,6 @@ if [ ! -f /var/www/html/wp-load.php ]; then
 fi
 cd /var/www/html
 
-# if [ ! -f "/var/www/html/wp-config.php" ]; then
 if [ ! -f wp-config.php ]; then
     echo "Creating WordPress configuration..."
     wp config create \
@@ -54,4 +53,5 @@ if [ ! -f wp-config.php ]; then
         --path=/var/www/html
 fi
 
+echo "WordPress setup complete!"
 exec php-fpm8.2 -F
