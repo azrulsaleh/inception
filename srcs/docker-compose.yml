@@ -1,6 +1,7 @@
 services:
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     restart: always
     env_file:
@@ -9,9 +10,12 @@ services:
       - mariadb_data:/var/lib/mysql
       - ../secrets/db_password.txt:/run/secrets/db_password:ro
       - ../secrets/db_root_password.txt:/run/secrets/db_root_password:ro
+    networks:
+      - inception
 
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     restart: always
     env_file:
@@ -22,9 +26,12 @@ services:
       - wordpress_data:/var/www/html
       - ../secrets/db_password.txt:/run/secrets/db_password:ro
       - ../secrets/credentials.txt:/run/secrets/credentials:ro
+    networks:
+      - inception
 
   nginx:
     build: ./requirements/nginx
+    image: nginx
     container_name: nginx
     restart: always
     depends_on:
@@ -33,6 +40,8 @@ services:
       - "443:443"
     volumes:
       - wordpress_data:/var/www/html
+    networks:
+      - inception
 
 volumes:
   mariadb_data:
@@ -50,3 +59,8 @@ volumes:
       type: none
       o: bind
       device: /home/azrulsaleh/data/wordpress
+
+networks:
+  inception:
+    name: inception
+    driver: bridge
