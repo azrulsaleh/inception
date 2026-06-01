@@ -47,11 +47,13 @@ services:
     image: nginx
     container_name: nginx
     restart: always
+    env_file:
+      - .env
     depends_on:
       wordpress:
         condition: service_healthy
     ports:
-      - "443:443"
+      - "${NGINX_PORT}:443"
     volumes:
       - wordpress_data:/var/www/html
     networks:

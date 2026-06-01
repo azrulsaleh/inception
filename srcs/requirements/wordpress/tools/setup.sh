@@ -67,6 +67,13 @@ if [ ! -f wp-config.php ]; then
         --user_pass=${CREDENTIAL_PASSWORD} \
         --allow-root \
         --path=/var/www/html
+
+    #append the dynamic URL rules to the bottom of wp-config.php - automatically handle changing ports for 42 evaluation
+    echo "Configuring dynamic URLs for custom ports..."
+    cat << EOF >> /var/www/html/wp-config.php
+define('WP_HOME', 'https://' . \$_SERVER['HTTP_HOST']);
+define('WP_SITEURL', 'https://' . \$_SERVER['HTTP_HOST']);
+EOF
 fi
 
 #ensure php-fpm/nginx can read/write to directory (upload media files / update plugins)
