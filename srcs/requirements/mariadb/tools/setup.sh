@@ -1,45 +1,59 @@
 #!/bin/bash
+#exit immediately if any command fails - prevent half-configured database from running
 set -e
 
-#read secrets safely
+#get docker secrets
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 
-#ensure proper directories and permissions
+#create directory to hold temp system files needed for mariadb process
+#mariadb runs as user named "mysql" (cant be "root" for security reasons)
 mkdir -p /run/mysqld
 chown -R mysql:mysql /run/mysqld
-chown -R mysql:mysql /var/lib/mysql
 
 #initialize database if it doesn't exist
-if [ ! -d "/var/lib/mysql/mysql" ]; then
+#check if wordpress database exist at "/var/lib/mysql"
+if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
     echo "Initializing MariaDB data directory..."
-    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+    chown -R mysql:mysql /var/lib/mysql
 
-    #start temporary MariaDB daemon for configuration using the local socket
+    #install if system tables do not exist
+    if [ ! -d "/var/lib/mysql/mysql" ]; then
+        mariadb-install-db --user=mysql --datadir=/var/lib/mysql
+    fi
+
+    #skip-networking + socket = avoid wordpress from connecting during config + allow internal socket file only
+    #& = runs server in background - so script can keep running
+    #$! = get process if of temp server - so we can stop later
+    echo "Starting MariaDB for configuration..."
     mariadbd --user=mysql --skip-networking --socket=/run/mysqld/mysqld.sock &
     PID="$!"
 
-    #wait for MariaDB to become responsive via the socket
+    #socket = needed as we turned off networking
+    #silent = supress terminal error messages
     until mariadb-admin ping --socket=/run/mysqld/mysqld.sock --silent; do
         echo "Waiting for MariaDB to start..."
         sleep 1
     done
 
-    #secure the root account and configure your databases/users
+    #use heredoc to inject configuration sql queries
+    #alter = set a secure password for the database root
+    #% = can connect from any ip address
+    #flush privileges = reload internal grant tables into memory immediately
     mariadb --socket=/run/mysqld/mysqld.sock <<EOF
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-    #shutdown the temporary background instance cleanly
+    #shutdown mariadb and wait
     mariadb-admin --socket=/run/mysqld/mysqld.sock shutdown
     wait "$PID"
     echo "MariaDB initialization complete!"
 fi
 
-#hand over execution to main container process
+#execute mariadbd (replace shell + become pid 1 in container)
+#bind address = turn on networking - allow wordpress to connect
 echo "MariaDB setup complete!"
 exec mariadbd --user=mysql --bind-address=0.0.0.0

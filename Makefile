@@ -47,5 +47,11 @@ reset:
 	-@docker volume rm $$(docker volume ls -q) 2>/dev/null || true
 	@echo "\n--- REMOVING NETWORKS ---"
 	-@docker network rm $$(docker network ls -q) 2>/dev/null || true
+	@echo "\n--- REMOVE ALL + UNUSED IMAGES ---"
+	-@docker system prune -af --volumes
+	@echo "\n--- INITIALIZE MARIADB DATA FOLDER ---"
+	-@sudo rm -rf /home/azrulsaleh/data/mariadb/*
+	@echo "\n--- INITIALIZE WORDPRESS DATA FOLDER ---"
+	-@sudo rm -rf /home/azrulsaleh/data/wordpress/*
 
 .PHONY: all up down start stop restart logs ps clean fclean re ls reset
