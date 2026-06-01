@@ -2,7 +2,8 @@
 FROM debian:bullseye
 
 #update = get list of available software versions
-#install = install mariadb server (-y automatically answers yes to prompts)
+#install = install mariadb server
+#y = automatically answers yes to prompts
 #clean + rm = deletes package files + caches from final docker image
 RUN apt-get update \
     && apt-get install -y mariadb-server \
