@@ -12,6 +12,12 @@ services:
       - ../secrets/db_root_password.txt:/run/secrets/db_root_password:ro
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "--password=$$(cat /run/secrets/db_root_password)"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   wordpress:
     build: ./requirements/wordpress
@@ -21,13 +27,20 @@ services:
     env_file:
       - .env
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     volumes:
       - wordpress_data:/var/www/html
       - ../secrets/db_password.txt:/run/secrets/db_password:ro
       - ../secrets/credentials.txt:/run/secrets/credentials:ro
     networks:
       - inception
+    healthcheck:
+      test: ["CMD", "sh", "-c", "cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   nginx:
     build: ./requirements/nginx
@@ -35,7 +48,8 @@ services:
     container_name: nginx
     restart: always
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
     ports:
       - "443:443"
     volumes:

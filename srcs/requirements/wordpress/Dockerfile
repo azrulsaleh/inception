@@ -5,9 +5,10 @@ FROM debian:bullseye
 #php7.4-mysql = allows php to talk to mariadb database
 #mariadb-client = gives container access to mysql cli
 #curl = used to download wp-cli and wordpress source code later
+#libfcgi-bin = needed to get health check to work (allows docker to speak to fastcgi)
 #clean + rm = deletes package files + caches from final docker image
 RUN apt-get update \
-    && apt-get install -y php7.4-fpm php7.4-mysql mariadb-client curl \
+    && apt-get install -y php7.4-fpm php7.4-mysql mariadb-client curl libfcgi-bin \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 #set php-fpm to listen to nginx over port 9000 on the docker network
