@@ -53,7 +53,7 @@ EOF
     echo "MariaDB initialization complete!"
 fi
 
-#execute mariadbd (replace shell + become pid 1 in container)
+#exec = runs mariadbd in foreground (replace shell + become pid 1 in container)
 #bind address = turn on networking - allow wordpress to connect
 echo "MariaDB setup complete!"
 exec mariadbd --user=mysql --bind-address=0.0.0.0
