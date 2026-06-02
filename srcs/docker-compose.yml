@@ -1,17 +1,63 @@
+#create isolated virtual network for mariadb, wordpress and nginx communication
+networks:
+  #internal identifier
+  inception:
+    #name = shown in "docker network ls"
+    #driver = network type (software-based network bridge inside host)
+    name: inception
+    driver: bridge
+
+#define named local bind mount volume - data to persists in /home/login/data
+volumes:
+  mariadb_data:
+    #name = tag in "docker volume ls"
+    #drive = use local storage (as oppose to cloud or nas)
+    #driver_opts = overide default volume location at "/var/lib/docker"
+    name: mariadb_data
+    driver: local
+    driver_opts:
+      #type = do not initialize to a file system format (ie ext4 or nfs)
+      #o = perform bind mount - mirror directory on host to container
+      #device = path where files will live
+      type: none
+      o: bind
+      device: /home/azrulsaleh/data/mariadb
+
+  wordpress_data:
+    name: wordpress_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/azrulsaleh/data/wordpress
+
+#define application logic
 services:
   mariadb:
+    #build = path to dockerfile
+    #image = tag built image with the name "mariadb"
+    #container_name = name the container "mariadb"
+    #restart = restart immediately if database crashes
+    #env_file = load .env into container's environment
     build: ./requirements/mariadb
     image: mariadb
     container_name: mariadb
     restart: always
     env_file:
       - .env
+    #mariadb_data = map named volume to mariadb's internal data directory
+    #secrets = inject text files into secret folder in container (instead of environment variables)
+    #ro = read only
     volumes:
       - mariadb_data:/var/lib/mysql
       - ../secrets/db_password.txt:/run/secrets/db_password:ro
       - ../secrets/db_root_password.txt:/run/secrets/db_root_password:ro
+    #place container inside isolated inception bridge network
     networks:
       - inception
+    #run mariadb-admin ping every 5s
+    #$$ = double dollar sign to escape token and execute inside container shell (instead of reading a host variable)
+    #retries = 3 successful pings changes status from starting to healthy
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "--password=$$(cat /run/secrets/db_root_password)"]
       interval: 5s
@@ -26,6 +72,7 @@ services:
     restart: always
     env_file:
       - .env
+    #wait until mariadb passes healthcheck before attempting to connect (avoid crashing due to missing database link)
     depends_on:
       mariadb:
         condition: service_healthy
@@ -35,6 +82,7 @@ services:
       - ../secrets/credentials.txt:/run/secrets/credentials:ro
     networks:
       - inception
+    #ping port 9000 to verify php engine is ready to handle incoming configuration from nginx
     healthcheck:
       test: ["CMD", "sh", "-c", "cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1"]
       interval: 10s
@@ -54,29 +102,8 @@ services:
         condition: service_healthy
     ports:
       - "${NGINX_PORT}:443"
+    #nginx can serve static images and find out if a .php file exists
     volumes:
       - wordpress_data:/var/www/html
     networks:
       - inception
-
-volumes:
-  mariadb_data:
-    name: mariadb_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/azrulsaleh/data/mariadb
-
-  wordpress_data:
-    name: wordpress_data
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/azrulsaleh/data/wordpress
-
-networks:
-  inception:
-    name: inception
-    driver: bridge
