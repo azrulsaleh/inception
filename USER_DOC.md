@@ -1,26 +1,8 @@
-# USER_DOC
+*This project has been created as part of the 42 curriculum by azsaleh.*
 
-# Overview
+# Inception: User Documentation
 
-This project deploys a small web infrastructure using Docker containers.  
-The stack is composed of three main services:
-
-| Service | Purpose |
-|---|---|
-| MariaDB | Database server used by WordPress |
-| WordPress + PHP-FPM | Website application and PHP processing |
-| NGINX | Reverse proxy and HTTPS web server |
-
-All services run inside isolated Docker containers and communicate through an internal Docker network.
-
-The infrastructure includes:
-- HTTPS using TLSv1.2/TLSv1.3
-- Persistent database storage
-- Persistent WordPress storage
-- Internal container networking
-- Secret-based credential management
-
----
+<div style="background-color: #2a3036; padding: 50px">
 
 # Services Provided
 
@@ -36,7 +18,7 @@ It listens on:
 
 NGINX forwards PHP requests to the WordPress PHP-FPM container.
 
----
+<br>
 
 ## WordPress + PHP-FPM
 
@@ -47,7 +29,7 @@ WordPress provides:
 
 PHP-FPM executes PHP scripts requested by NGINX.
 
----
+<br>
 
 ## MariaDB
 
@@ -60,7 +42,9 @@ MariaDB stores:
 
 Database data persists across container restarts through Docker named volumes.
 
----
+</div>
+<br>
+<div style="background-color: #362d2a; padding: 50px">
 
 # Starting the Project
 
@@ -81,7 +65,7 @@ This command:
 - creates containers
 - starts the infrastructure
 
----
+<br><br>
 
 # Stopping the Project
 
@@ -97,7 +81,7 @@ Stop and remove containers:
 make down
 ```
 
----
+<br><br>
 
 # Restarting the Project
 
@@ -107,7 +91,9 @@ Restart all services:
 make restart
 ```
 
----
+</div>
+<br>
+<div style="background-color: #2a3631; padding: 50px">
 
 # Accessing the Website
 
@@ -121,7 +107,7 @@ A browser warning about a self-signed certificate is expected.
 
 Accept the warning to continue.
 
----
+<br><br>
 
 # Accessing the WordPress Admin Panel
 
@@ -133,7 +119,9 @@ https://azsaleh.42.fr/wp-admin
 
 Log in using the administrator credentials configured in the project secrets.
 
----
+</div>
+<br>
+<div style="background-color: #302a36; padding: 50px">
 
 # Credentials Management
 
@@ -143,10 +131,9 @@ Example structure:
 
 ```text
 secrets/
+├── credentials.txt
 ├── db_password.txt
-├── db_root_password.txt
-├── wp_admin_password.txt
-└── wp_user_password.txt
+└── db_root_password.txt
 ```
 
 Each file contains a single secret value.
@@ -157,7 +144,7 @@ Example:
 supersecretpassword
 ```
 
----
+<br><br>
 
 # Environment Variables
 
@@ -173,11 +160,11 @@ Examples:
 - usernames
 - emails
 
----
+</div>
+<br>
+<div style="background-color: #36332a; padding: 50px">
 
-# Checking Running Services
-
-## View Running Containers
+# View Running Containers
 
 ```bash
 make ps
@@ -194,7 +181,7 @@ Expected containers:
 - wordpress
 - mariadb
 
----
+<br><br>
 
 # Viewing Logs
 
@@ -212,7 +199,7 @@ docker logs wordpress
 docker logs mariadb
 ```
 
----
+<br><br>
 
 # Verifying HTTPS Access
 
@@ -225,7 +212,7 @@ curl -k https://azsaleh.42.fr
 Expected result:
 - HTML output from WordPress
 
----
+<br><br>
 
 # Checking Docker Volumes
 
@@ -239,7 +226,7 @@ Expected volumes:
 - wordpress_data
 - mariadb_data
 
----
+<br><br>
 
 # Verifying Database Connectivity
 
@@ -255,21 +242,7 @@ Test database connection:
 mariadb -hmariadb -u<db_user> -p
 ```
 
----
-
-# Persistent Data
-
-The project uses Docker named volumes to preserve:
-- database contents
-- uploaded files
-- WordPress configuration
-
-Data remains available after:
-- container recreation
-- service restart
-- system reboot
-
----
+<br><br>
 
 # Full Cleanup
 
@@ -285,11 +258,9 @@ make fclean
 WARNING:  
 This permanently deletes all persistent data.
 
----
+<br><br>
 
-# Common Issues
-
-## Website Not Reachable
+# Website Not Reachable
 
 Verify:
 - containers are running
@@ -302,9 +273,9 @@ Check:
 docker ps
 ```
 
----
+<br><br>
 
-## Database Connection Errors
+# Database Connection Errors
 
 Check MariaDB logs:
 
@@ -317,9 +288,9 @@ Verify:
 - secret files
 - Docker network connectivity
 
----
+<br><br>
 
-## WordPress Container Restart Loop
+# WordPress Container Restart Loop
 
 Check logs:
 
@@ -332,19 +303,19 @@ Common causes:
 - invalid database credentials
 - missing Docker volume data
 
----
+<br><br>
 
 # Host Configuration
 
 The host machine should contain an `/etc/hosts` entry similar to:
 
 ```text
-192.168.0.6 azsaleh.42.fr
+127.0.0.1 azsaleh.42.fr
 ```
 
 Replace the IP address with the VM’s actual address if necessary.
 
----
+<br><br>
 
 # Security Notes
 
@@ -353,3 +324,5 @@ Replace the IP address with the VM’s actual address if necessary.
 - Passwords are stored separately from source code
 - HTTPS encryption is enabled
 - Containers are isolated through Docker networking
+
+</div>

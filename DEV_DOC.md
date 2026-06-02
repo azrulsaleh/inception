@@ -1,22 +1,12 @@
-# DEV_DOC
+*This project has been created as part of the 42 curriculum by azsaleh.*
 
-# Developer Documentation
+# Inception: Developer Documentation
 
-This document explains how to set up, build, run, and maintain the Inception infrastructure project.
-
-The project uses Docker and Docker Compose to orchestrate a multi-container web stack composed of:
-- NGINX
-- WordPress + PHP-FPM
-- MariaDB
-
----
+<div style="background-color: #2a3036; padding: 50px">
 
 # Prerequisites
 
 The following software must be installed on the host system or VM:
-
-## Required
-
 - Docker
 - Docker Compose
 - Make
@@ -25,7 +15,7 @@ The following software must be installed on the host system or VM:
 Recommended environment:
 - Debian Linux VM
 
----
+<br><br>
 
 # Verify Installation
 
@@ -47,7 +37,7 @@ docker compose version
 make --version
 ```
 
----
+<br><br>
 
 # Project Structure
 
@@ -58,10 +48,9 @@ make --version
 ├── USER_DOC.md
 ├── DEV_DOC.md
 ├── secrets/
+│   ├── credentials.txt
 │   ├── db_password.txt
-│   ├── db_root_password.txt
-│   ├── wp_admin_password.txt
-│   └── wp_user_password.txt
+│   └── db_root_password.txt
 └── srcs/
     ├── .env
     ├── docker-compose.yml
@@ -71,13 +60,13 @@ make --version
         └── wordpress/
 ```
 
----
+<br><br>
 
 # Environment Configuration
 
-## `.env`
+## .env
 
-The `.env` file is located at:
+The .env file is located at:
 
 ```text
 srcs/.env
@@ -104,7 +93,7 @@ WP_USER=user42
 WP_USER_EMAIL=user42@test.com
 ```
 
----
+<br><br>
 
 # Secrets Configuration
 
@@ -118,7 +107,7 @@ Each secret file contains a single line only.
 
 Example:
 
-## `secrets/db_password.txt`
+## secrets/db_password.txt
 
 ```text
 supersecretpassword
@@ -128,13 +117,12 @@ Required secret files:
 
 ```text
 secrets/
+├── credentials.txt
 ├── db_password.txt
-├── db_root_password.txt
-├── wp_admin_password.txt
-└── wp_user_password.txt
+└── db_root_password.txt
 ```
 
----
+<br><br>
 
 # Host Configuration
 
@@ -143,12 +131,14 @@ Add the VM IP and domain to the host machine’s `/etc/hosts` file.
 Example:
 
 ```text
-192.168.0.6 azsaleh.42.fr
+127.0.0.1 azsaleh.42.fr
 ```
 
 Replace the IP address if necessary.
 
----
+</div>
+<br>
+<div style="background-color: #362a2a; padding: 50px">
 
 # Building the Project
 
@@ -170,7 +160,7 @@ This command:
 - creates Docker volumes
 - starts the infrastructure
 
----
+<br><br>
 
 # Docker Compose
 
@@ -189,7 +179,7 @@ Named volumes:
 - mariadb_data
 - wordpress_data
 
----
+<br><br>
 
 # Makefile Commands
 
@@ -199,15 +189,11 @@ Named volumes:
 make up
 ```
 
----
-
 ## Stop Containers
 
 ```bash
 make stop
 ```
-
----
 
 ## Remove Containers
 
@@ -215,15 +201,11 @@ make stop
 make down
 ```
 
----
-
 ## Restart Infrastructure
 
 ```bash
 make restart
 ```
-
----
 
 ## View Logs
 
@@ -231,23 +213,17 @@ make restart
 make logs
 ```
 
----
-
 ## View Running Containers
 
 ```bash
 make ps
 ```
 
----
-
 ## Remove Containers and Images
 
 ```bash
 make clean
 ```
-
----
 
 ## Full Cleanup
 
@@ -263,7 +239,9 @@ This removes:
 WARNING:
 Persistent project data will be deleted.
 
----
+</div>
+<br>
+<div style="background-color: #332a36; padding: 50px">
 
 # Docker Commands
 
@@ -273,7 +251,7 @@ Persistent project data will be deleted.
 docker ps
 ```
 
----
+<br><br>
 
 ## Enter Container Shell
 
@@ -295,7 +273,7 @@ docker exec -it wordpress bash
 docker exec -it mariadb bash
 ```
 
----
+<br><br>
 
 # Viewing Logs
 
@@ -317,7 +295,48 @@ docker logs wordpress
 docker logs mariadb
 ```
 
----
+## Restart Only One Service
+
+Example:
+
+```bash
+docker restart wordpress
+```
+
+## Rebuild One Service
+
+Example:
+
+```bash
+docker compose -f srcs/docker-compose.yml build wordpress
+```
+
+## Remove Unused Docker Resources
+
+```bash
+docker system prune -a
+```
+
+WARNING:
+This removes unused Docker resources globally.
+
+## Rebuilding Images
+
+If Dockerfiles are modified:
+
+```bash
+docker compose -f srcs/docker-compose.yml build
+```
+
+or:
+
+```bash
+make restart
+```
+
+</div>
+<br>
+<div style="background-color: #36332a; padding: 50px">
 
 # Persistent Storage
 
@@ -337,11 +356,11 @@ volumes:
   wordpress_data:
 ```
 
----
+<br><br>
 
 # Volume Usage
 
-## `mariadb_data`
+## mariadb_data
 
 Mounted to:
 
@@ -354,9 +373,7 @@ Stores:
 - users
 - WordPress content data
 
----
-
-## `wordpress_data`
+## wordpress_data
 
 Mounted to:
 
@@ -371,7 +388,7 @@ Stores:
 - themes
 - configuration
 
----
+<br><br>
 
 # Why Named Volumes
 
@@ -381,7 +398,7 @@ Docker named volumes were chosen because:
 - they persist independently from containers
 - they improve portability
 
----
+<br><br>
 
 # Persistence Verification
 
@@ -400,169 +417,4 @@ Verify:
 - data still exists
 - website remains functional
 
----
-
-# Rebuilding Images
-
-If Dockerfiles are modified:
-
-```bash
-docker compose -f srcs/docker-compose.yml build
-```
-
-or:
-
-```bash
-make restart
-```
-
----
-
-# Network Architecture
-
-Containers communicate internally using Docker bridge networking.
-
-Internal service names:
-- `mariadb`
-- `wordpress`
-- `nginx`
-
-Only NGINX exposes a public port:
-
-```text
-443
-```
-
-MariaDB and PHP-FPM remain internal.
-
----
-
-# TLS Configuration
-
-NGINX uses:
-- TLSv1.2
-- TLSv1.3
-
-Certificates are generated during image build using OpenSSL.
-
-Configuration file:
-
-```text
-srcs/requirements/nginx/conf/default.conf
-```
-
----
-
-# WordPress Initialization
-
-WordPress initialization occurs inside:
-
-```text
-srcs/requirements/wordpress/tools/setup.sh
-```
-
-The script:
-- waits for MariaDB
-- copies WordPress files into the volume
-- creates `wp-config.php`
-- installs WordPress
-- creates users
-- launches PHP-FPM
-
----
-
-# MariaDB Initialization
-
-MariaDB initialization occurs inside:
-
-```text
-srcs/requirements/mariadb/tools/setup.sh
-```
-
-The script:
-- initializes the database directory
-- starts MariaDB
-- creates the database
-- creates database users
-- grants privileges
-
----
-
-# Common Development Tasks
-
-## Restart Only One Service
-
-Example:
-
-```bash
-docker restart wordpress
-```
-
----
-
-## Rebuild One Service
-
-Example:
-
-```bash
-docker compose -f srcs/docker-compose.yml build wordpress
-```
-
----
-
-## Remove Unused Docker Resources
-
-```bash
-docker system prune -a
-```
-
-WARNING:
-This removes unused Docker resources globally.
-
----
-
-# Troubleshooting
-
-## Containers Restarting Repeatedly
-
-Check logs:
-
-```bash
-docker logs <container_name>
-```
-
----
-
-## WordPress Cannot Connect to Database
-
-Verify:
-- MariaDB container is running
-- database credentials are correct
-- secret files exist
-- Docker network is functional
-
----
-
-## HTTPS Not Reachable
-
-Verify:
-- port 443 is exposed
-- NGINX container is running
-- `/etc/hosts` is configured correctly
-
----
-
-# Development Notes
-
-This project follows:
-- one process per container
-- container isolation
-- internal Docker networking
-- persistent Docker-managed storage
-- runtime initialization scripting
-
-The infrastructure is intentionally modular to simplify:
-- debugging
-- maintenance
-- service replacement
-- future bonus extensions
+</div>

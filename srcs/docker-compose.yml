@@ -83,6 +83,10 @@ services:
     networks:
       - inception
     #ping port 9000 to verify php engine is ready to handle incoming configuration from nginx
+    #sh = shell
+    #c = execute command (as oppose to looking for a script file)
+    #cgi-fcgi = utility to talk to fast cgi applications
+    #|| exit = if command on left fails, exit with error code
     healthcheck:
       test: ["CMD", "sh", "-c", "cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1"]
       interval: 10s
